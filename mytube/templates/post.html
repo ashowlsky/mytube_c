@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %} Пост {{ post.id }} {% endblock %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+            <div class="col-md-3 mb-3 mt-1">
+                <div class="card">
+                        <div class="card-body">
+                                <div class="h2">
+                                    <!-- Имя автора -->
+                                    {{ post.author.get_full_name }}
+                                </div>
+                                <div class="h3 text-muted">
+                                     <!-- username автора -->
+                                     {{ post.author.username }}
+                                </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                        <div class="h6 text-muted">
+                                        Подписчиков: XXX <br />
+                                        Подписан: XXX
+                                        </div>
+                                </li>
+                                <li class="list-group-item">
+                                        <div class="h6 text-muted">
+                                            <!--Количество записей -->
+                                            {{ post.author.posts.count }}
+                                        </div>
+                                </li>
+                        </ul>
+                </div>
+        </div>
+
+        <div class="col-md-9">
+
+            <!-- Пост -->  
+                <div class="card mb-3 mt-1 shadow-sm">
+                        <div class="card-body">
+                                <p class="card-text">
+                                        <!-- Ссылка на страницу автора в атрибуте href; username автора в тексте ссылки -->
+                                        <a href="/{{ post.author.username }}/"><strong class="d-block text-gray-dark"> {{ post.author.username }} </strong></a>
+                                        <!-- Текст поста -->
+                                        <h3>Автор: {{ post.author.get_full_name }}</h3>
+                                        <p>{{ post.text|linebreaksbr }}</p>
+                                        {{ posts.pub_date|date:"d M Y" }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group ">
+                                                <!-- Ссылка на редактирование, показывается только автору записи -->
+                                                {% if post.author.username == request.user.username %}
+                                                <a class="btn btn-sm text-muted" href="/{{ post.author.username }}/{{ post.id }}/edit" role="button">Редактировать</a>
+                                                {% endif %}
+                                                <form action="{% url 'like_post' %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <button type="submit" name="post_id" value="{{post.id}}">Like | {{post.likes.count }}</button>
+                                                </form>
+                                                <form action="{% url 'dislike_post' %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <button type="submit" name="post_id" value="{{post.id}}">Dislike | {{post.dislikes.count }}</button>
+                                                </form>
+                                        </div>
+                                        <!-- Дата публикации  -->
+                                        <small class="text-muted">{{ post.pub_date|date:"d M Y" }}</small>
+                                </div>
+                        </div>
+                </div>
+     </div>
+    </div>
+{% for comment in page %}
+<h3>Автор: {{ comment.comment_author.get_full_name }}</h3>
+<p> {{ comment.text|linebreaksbr }}</p>
+<p> {{ comment.pub_date|date:"d M Y" }}</p><p>{{ last_edited }}</p>
+{% endfor %}
+<div class="paginator_container_profile">
+{% if page.has_other_pages %}
+{% include "paginator.html" %}
+{% endif %}
+</div>
+<form method="POST">
+        {% csrf_token %} 
+        {{add_comment_form.as_p}}
+        <button type="submit">Добавить</button>
+        </form>
+</main>
+{% endblock %}
