@@ -44,14 +44,15 @@ def profile(request, username):
     if Relations.objects.filter(follower_id=current_user.id, following_id=user.id).exists():
         relation = Relations.objects.get(follower_id=current_user.id, following_id=user.id)
         relation_started = relation.started_on
-    following = True if Relations.objects.filter(follower=current_user, following=user).exists() else False
+    following = False
+    if current_user.is_authenticated:
+        following = True if Relations.objects.filter(follower=current_user, following=user).exists() else False
     post_list = user.posts.order_by("-pub_date").all()
     paginator = Paginator(post_list, 5)
     page_number = request.GET.get('page') 
     page = paginator.get_page(page_number) 
     return render(request, "profile.html", {"user":user, 'page':page, 'following':following, 'relation_started':relation_started})
      
-
 def post_view(request, username, post_id):
     """ На странице поста можно сразу добавлять комментарии. Еще добавил в модель Post
     поле is_read, false по дефолту, для проверки был ли пост прочитан. Тег 'New!' (описан в функции 'feed') убирается когда

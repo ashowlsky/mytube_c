@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from PIL import Image
 
 class Profile(models.Model):
+    """ Модель профиля для добавления аватара. Картинка урезается до 200 пикселей"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='user_avatars')
 
@@ -20,11 +21,13 @@ class Profile(models.Model):
             img.save(self.avatar.path)
 
 class Relations(models.Model):
+    """ Модель для подписок """
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follows")
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followed")
     started_on = models.DateField(auto_now_add=True)
 
 class Logout_time_records(models.Model):
+    """ Регистратор времени выхода, ресивер прописан в signals.py"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="logout_time")
     last_logout_time = models.DateTimeField(blank=True, null=True)
 
